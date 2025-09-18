@@ -9,7 +9,7 @@ class RAG:
     def __init__(self, ollama_url: str = config.OLLAMA_API_URL):
         self.ollama_url = ollama_url
 
-    def generate_answer(self, query: str, retrieved_docs: List[Dict[str, Any]]) -> str:
+    def generate_answer(self, query: str, retrieved_docs: List[Dict[str, Any]]) -> dict:
         """Generate answer using RAG with Ollama."""
         # Prepare context from retrieved documents
         context = "\n\n".join([doc["document"] for doc in retrieved_docs])
@@ -33,12 +33,13 @@ class RAG:
         # Add citations
         citations = []
         for doc in retrieved_docs:
-            meta = doc["metadata"]
-            citation = f"{meta.get('case_name', 'Unknown Case')}, {meta.get('section', 'Unknown Section')}"
+            meta = doc.get("metadata", {})
+            case_name = meta.get('case_name', 'Unknown Case')
+            section = meta.get('section', 'Unknown Section')
+            citation = f"{case_name}, {section}"
             citations.append(citation)
 
-        full_answer = f"{answer}\n\nCitations:\n" + "\n".join(citations)
-        return full_answer
+        return {"answer": answer, "citations": citations}
 
 if __name__ == "__main__":
     rag = RAG()

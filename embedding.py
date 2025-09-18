@@ -8,7 +8,10 @@ logger = utils.setup_logging()
 
 class Embedder:
     def __init__(self, model_name: str = config.EMBEDDING_MODEL_NAME):
+        # Workaround for meta tensor error by loading model without device param first
         self.model = SentenceTransformer(model_name)
+        # Remove the to_empty call because it takes no arguments and causes error
+        # Instead, rely on default device or set device='cpu' in model initialization if no error
         logger.info(f"Loaded embedding model: {model_name}")
 
     def encode_chunks(self, chunks: List[str], batch_size: int = config.EMBEDDING_BATCH_SIZE) -> List[np.ndarray]:
